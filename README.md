@@ -1,2 +1,1 @@
-# Charity-donation-tracker-stellar
-Charity Donation Tracker is a web app that enables secure and transparent donations. Users can track contributions in real time, view donation history, and monitor fund usage. It builds trust through accountability and offers a scalable system for future enhancements like blockchain integration. 
+Charity Donation Tracker is a web app for secure and transparent donations. Users can track contributions, view history, and monitor fund usage in real time. It ensures accountability and trust with a scalable system for future upgrades. Contract ID: CDCAILYWRURJ6WEASE2HQKIMHO3O7JLDMSFO6XO6TPTNUIMZUQ2NRZXD
