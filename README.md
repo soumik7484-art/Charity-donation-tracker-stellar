@@ -31,12 +31,12 @@ Backend (if applicable)
 CDCAILYWRURJ6WEASE2HQKIMHO3O7JLDMSFO6XO6TPTNUIMZUQ2NRZXD
 <img width="1915" height="970" alt="Screenshot 2026-03-20 151521" src="https://github.com/user-attachments/assets/726de541-477a-4825-bd6f-988d04d060e1" />
 
-<img width="1917" height="904" alt="Screenshot 2026-03-20 152744" src="https://github.com/user-attachments/assets/44872027-7c71-4321-b8e6-96bf2bbaabf9" />
+<img width="1913" height="915" alt="Screenshot 2026-03-22 013139" src="https://github.com/user-attachments/assets/dc366109-8a72-4d75-8fa0-207bdfa1c5f7" />
+
 
 
 Author
 Soumik Chatterjee
 
-👨‍💻 Author
 
-Soumik Chatterjee
+Soumik Chatt
