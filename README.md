@@ -15,6 +15,15 @@
 
 ---
 
+### 📸 Application Previews
+
+<p align="center">
+  <img src="./dashboard.png" alt="CharityChain Dashboard UI" width="48%" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-right: 2%;" />
+  <img src="./chatbot.png" alt="CharityChain AI Chatbot Interface" width="48%" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+</p>
+
+---
+
 ### 🌟 Introduction
 CharityChain is a fully transparent, decentralized donation platform. Unlike traditional platforms that require you to trust a centralized middleman, CharityChain operates directly on-chain using smart contracts. Every campaign registration, donor transaction, and milestone fund release is executed securely via WebAssembly-compiled logic on the Stellar network.
 
