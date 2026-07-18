@@ -95,7 +95,7 @@ Write a concise 1-sentence risk summary for the administrator. Keep it under 25 
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
-      model: 'llama3-8b-8192',
+      model: 'llama-3.3-70b-versatile',
       max_tokens: 45,
       temperature: 0.1
     });
@@ -472,7 +472,7 @@ app.post('/api/chat', async (req, res) => {
 
     const completion = await chatGroq.chat.completions.create({
       messages,
-      model: 'llama3-8b-8192',
+      model: 'llama-3.3-70b-versatile',
       max_tokens: 150,
       temperature: 0.7
     });
@@ -501,7 +501,7 @@ Response must be exactly the category name, nothing else.`;
 
     const completion = await classGroq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
-      model: 'llama3-8b-8192',
+      model: 'llama-3.3-70b-versatile',
       max_tokens: 10,
       temperature: 0.1
     });
