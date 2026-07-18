@@ -376,9 +376,11 @@ export default function App() {
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase())
     if (catFilter === 'All') return matchSearch
 
-    // Resolve category dynamically from state mapping
-    const category = campaignCategories[c.id] || 'Environment'
-    return matchSearch && category === catFilter
+    // Resolve category dynamically from state mapping with normalization
+    const rawCategory = campaignCategories[c.id] || 'Environment'
+    const category = rawCategory.replace(/\s+/g, '').toLowerCase()
+    const targetFilter = catFilter.replace(/\s+/g, '').toLowerCase()
+    return matchSearch && category === targetFilter
   })
 
   // ── Analytics data ─────────────────────────────────────────────────────────
