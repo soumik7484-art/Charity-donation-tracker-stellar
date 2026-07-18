@@ -19,7 +19,7 @@ import {
   Settings, Zap, RefreshCw, Loader2, AlertCircle, Shield,
   Wallet, Globe, TrendingUp, Users, Award, Search,
   Lock, Unlock, Star, CheckCircle,
-  XCircle, Eye, Download, QrCode, Activity, Target, Flag
+  XCircle, Eye, Download, QrCode, Activity, Target, Flag, Bot
 } from 'lucide-react'
 import * as StellarService from './stellar'
 import type { Campaign } from './stellar'
@@ -1682,7 +1682,7 @@ export default function App() {
 
       {/* ── AI Chatbot drawer & bubble ─────────────────────────────────── */}
       <div className="chat-bubble" onClick={() => setChatOpen(!chatOpen)}>
-        <Bell size={22}/>
+        <Bot size={24}/>
       </div>
 
       {chatOpen && (
