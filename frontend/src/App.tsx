@@ -312,7 +312,17 @@ export default function App() {
   // Filtered campaigns
   const filteredCampaigns = campaigns.filter(c => {
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase())
-    return matchSearch
+    if (catFilter === 'All') return matchSearch
+
+    // Resolve category from backend metadata
+    let category = 'Environment'
+    if (c.id === 2) category = 'Health & Water'
+    else if (c.id === 3) category = 'Education'
+    else if (c.id === 4) category = 'Disaster Relief'
+    else if (c.id === 5) category = 'Animals'
+    else if (c.id === 6) category = 'Technology'
+
+    return matchSearch && category === catFilter
   })
 
   // ── Analytics data ─────────────────────────────────────────────────────────
