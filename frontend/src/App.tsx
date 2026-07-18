@@ -264,7 +264,7 @@ export default function App() {
       // 1. Auto-classify category using Groq Classifier Endpoint
       let resolvedCategory = fCat;
       try {
-        const classRes = await fetch('http://localhost:5001/api/campaigns/classify', {
+        const classRes = await fetch('https://backend-two-gamma-80.vercel.app/api/campaigns/classify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title: fTitle, description: fDesc })
@@ -1718,7 +1718,7 @@ export default function App() {
             setChatMessages(p => [...p, { sender: 'user', text: uText }]);
             setChatLoading(true);
             try {
-              const res = await fetch('http://localhost:5001/api/chat', {
+              const res = await fetch('https://backend-two-gamma-80.vercel.app/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: uText, chatHistory: chatMessages })

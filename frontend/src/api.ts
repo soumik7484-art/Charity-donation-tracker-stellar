@@ -4,7 +4,7 @@
  * Falls back gracefully when backend is not running.
  */
 
-const BASE = 'http://localhost:5001/api'
+const BASE = 'https://backend-two-gamma-80.vercel.app/api'
 
 async function get<T>(path: string, fallback: T): Promise<T> {
   try {
