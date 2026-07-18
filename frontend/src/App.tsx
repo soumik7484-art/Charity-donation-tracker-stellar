@@ -210,7 +210,7 @@ export default function App() {
         }
         cList.forEach((cItem: any) => {
           if (cItem && cItem.id) {
-            mapping[Number(cItem.id)] = cItem.category || 'Environment'
+            mapping[Number(cItem.id)] = cItem.category || (Number(cItem.id) === 2 ? 'Health & Water' : 'Environment')
           }
         })
         setCampaignCategories(mapping)
