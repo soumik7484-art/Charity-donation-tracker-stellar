@@ -18,8 +18,13 @@
 ### 📸 Application Previews
 
 <p align="center">
-  <img src="./dashboard.png" alt="CharityChain Dashboard UI" width="48%" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-right: 2%;" />
-  <img src="./chatbot.png" alt="CharityChain AI Chatbot Interface" width="48%" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+  <b>Dashboard Interface</b>
+  <br/>
+  <img src="./dashboard.png" alt="CharityChain Dashboard UI" width="90%" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-bottom: 20px;" />
+  <br/><br/>
+  <b>AI Assistant & Chatbot</b>
+  <br/>
+  <img src="./chatbot.png" alt="CharityChain AI Chatbot Interface" width="45%" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);" />
 </p>
 
 ---
