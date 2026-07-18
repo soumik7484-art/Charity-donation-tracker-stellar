@@ -99,6 +99,17 @@ export default function App() {
   // Donation Receipt state
   const [activeReceipt, setActiveReceipt] = useState<ReceiptData | null>(null)
 
+  // Map of campaign ID to category string (for dynamic tags)
+  const [campaignCategories, setCampaignCategories] = useState<Record<number, string>>({
+    1: 'Environment',
+    2: 'Health & Water',
+    3: 'Education',
+    4: 'Disaster Relief',
+    5: 'Animals',
+    6: 'Technology'
+  })
+
+
 
   // Milestones modal
   const [showMilestoneModal, setShowMilestoneModal] = useState(false)
@@ -164,18 +175,37 @@ export default function App() {
   // ── Load backend data ─────────────────────────────────────────────────────
   const loadBackend = useCallback(async () => {
     try {
-      const [d, fa, n, a, ng] = await Promise.all([
+      const [d, fa, n, a, ng, cList] = await Promise.all([
         Api.apiGetDonations(),
         Api.apiGetFraudAlerts(),
         Api.apiGetNotifications(),
         Api.apiGetAnalytics(),
         Api.apiGetNGOs(),
+        Api.apiGetCampaigns()
       ])
       setDonations(d)
       setFraudAlerts(fa)
       setNotifs(n)
       setAnalytics(a)
       setNGOs(ng)
+      
+      // Update dynamic categories map from backend campaign metadata
+      if (Array.isArray(cList)) {
+        const mapping: Record<number, string> = {
+          1: 'Environment',
+          2: 'Health & Water',
+          3: 'Education',
+          4: 'Disaster Relief',
+          5: 'Animals',
+          6: 'Technology'
+        }
+        cList.forEach((cItem: any) => {
+          if (cItem && cItem.id) {
+            mapping[Number(cItem.id)] = cItem.category || 'Environment'
+          }
+        })
+        setCampaignCategories(mapping)
+      }
       log('info', `Backend: ${d.length} donations, ${fa.length} alerts loaded`)
     } catch {
       log('error', 'Backend not available — running in blockchain-only mode')
@@ -220,6 +250,10 @@ export default function App() {
       flash('🚀', `"${fTitle}" is live on Stellar!`, txHash)
       // Sync to backend
       await Api.apiCreateCampaign({ id, title: fTitle, description: fDesc, goal, deadline: Date.now(), image: fEmoji, category: fCat })
+      
+      // Update categories mapping state locally
+      setCampaignCategories(prev => ({ ...prev, [id]: fCat }))
+      
       await loadFromChain(true)
       await loadBackend()
       setFTitle(''); setFDesc(''); setFGoal(''); setFDays(''); setFEmoji('🌱'); setFCat('Environment')
@@ -314,14 +348,8 @@ export default function App() {
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase())
     if (catFilter === 'All') return matchSearch
 
-    // Resolve category from backend metadata
-    let category = 'Environment'
-    if (c.id === 2) category = 'Health & Water'
-    else if (c.id === 3) category = 'Education'
-    else if (c.id === 4) category = 'Disaster Relief'
-    else if (c.id === 5) category = 'Animals'
-    else if (c.id === 6) category = 'Technology'
-
+    // Resolve category dynamically from state mapping
+    const category = campaignCategories[c.id] || 'Environment'
     return matchSearch && category === catFilter
   })
 
@@ -558,6 +586,7 @@ export default function App() {
                             <div style={{display:'flex', gap:'0.5rem', flexWrap:'wrap', marginBottom:'0.5rem'}}>
                               <span className="trust-badge"><Star size={10}/> Trust 94/100</span>
                               <span className="info-tag tag-green">Verified NGO</span>
+                              <span className="info-tag tag-blue">{campaignCategories[c.id] || 'Environment'}</span>
                             </div>
                           </div>
 
