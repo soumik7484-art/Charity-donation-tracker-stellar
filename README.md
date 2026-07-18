@@ -39,6 +39,14 @@
 | **Vite** | Build tool & dev server |
 | **@stellar/stellar-sdk** | Blockchain integration (sign & submit txs) |
 | **lucide-react** | Icon library |
+| **jsPDF & html2canvas** | Client-side receipt generator |
+
+### Backend & AI
+| Technology | Role |
+|---|---|
+| **Node.js + Express** | Backend API router |
+| **Vercel Serverless** | Cloud host |
+| **Groq SDK** | Llama-3.3-70b-versatile query client |
 
 ### Design
 | Resource | Usage |
@@ -59,6 +67,11 @@
 - ✅ **Contract storage explorer** — reads live data directly from the blockchain
 - ✅ **Transaction links** — every action links to stellar.expert block explorer
 - ✅ **Zero platform fees** — the contract is the law, no company in the middle
+- ✅ **AI Chatbot & Assistant** — powered by Groq Llama-3.3-70b-versatile to help users navigate transactions, escrow, and milestones
+- ✅ **Auto-Categorizer** — automatically classifies campaigns (e.g. Health & Water, Environment) using AI LLM classification
+- ✅ **Donation Receipt Generator** — triggers instant client-side downloadable PDF receipts using jsPDF on successful transaction completion
+- ✅ **Vercel Serverless Backend** — fully scalable backend running on Vercel handling secure API communication and database updates
+- ✅ **Premium Light Green Theme** — beautiful responsive pale-green dashboard UI styling (#f2f8f4)
 
 ---
 
