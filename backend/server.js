@@ -452,6 +452,68 @@ app.get('/api/analytics', (req, res) => {
   });
 });
 
+// AI Chatbot Assistant Endpoint powered by Groq Llama-3
+app.post('/api/chat', async (req, res) => {
+  const { message, chatHistory, userApiKey } = req.body;
+  const clientKey = userApiKey || process.env.GROQ_API_KEY || '';
+
+  try {
+    const chatGroq = new Groq({ apiKey: clientKey });
+    const systemPrompt = `You are the CharityChain AI Assistant. Answer questions about Web3, Stellar, Soroban contracts, campaigns, and donation security. Be concise and friendly.`;
+
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...(chatHistory || []).map((msg) => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      })),
+      { role: 'user', content: message }
+    ];
+
+    const completion = await chatGroq.chat.completions.create({
+      messages,
+      model: 'llama3-8b-8192',
+      max_tokens: 150,
+      temperature: 0.7
+    });
+
+    const reply = completion.choices[0]?.message?.content || "I couldn't process that query. Please make sure your Groq API key is valid.";
+    res.json({ success: true, reply });
+  } catch (err) {
+    console.error("Groq Chatbot Error:", err.message);
+    res.status(500).json({ error: "Failed to query Groq model. Check your API key." });
+  }
+});
+
+// Dynamic AI Categorization Endpoint powered by Groq
+app.post('/api/campaigns/classify', async (req, res) => {
+  const { title, description, userApiKey } = req.body;
+  const clientKey = userApiKey || process.env.GROQ_API_KEY || '';
+
+  try {
+    const classGroq = new Groq({ apiKey: clientKey });
+    const prompt = `Classify this charity campaign into exactly one of these categories:
+Environment, Health & Water, Education, Disaster Relief, Animals, Technology.
+Title: "${title}"
+Description: "${description}"
+
+Response must be exactly the category name, nothing else.`;
+
+    const completion = await classGroq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama3-8b-8192',
+      max_tokens: 10,
+      temperature: 0.1
+    });
+
+    const category = completion.choices[0]?.message?.content?.trim() || "Environment";
+    res.json({ success: true, category });
+  } catch (err) {
+    console.error("Groq Classifier Error:", err.message);
+    res.json({ success: false, category: "Environment" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`CharityChain API backend running on port ${PORT}`);
 });

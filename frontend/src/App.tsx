@@ -109,6 +109,15 @@ export default function App() {
     6: 'Technology'
   })
 
+  // Chatbot drawer state
+  const [chatOpen, setChatOpen] = useState(false)
+  const [chatInput, setChatInput] = useState('')
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: 'user' | 'bot'; text: string }>>([
+    { sender: 'bot', text: 'Hi! I am your CharityChain AI assistant. Ask me anything about donations, escrow milstones or Stellar blockchain!' }
+  ])
+  const [chatLoading, setChatLoading] = useState(false)
+
+
 
 
   // Milestones modal
@@ -245,14 +254,33 @@ export default function App() {
     log('info', `Deploying campaign "${fTitle}" (${goal} XLM, ${days} days)…`)
     setTxPending(p => ({ ...p, create: true }))
     try {
+      // 1. Auto-classify category using Groq Classifier Endpoint
+      let resolvedCategory = fCat;
+      try {
+        const classRes = await fetch('http://localhost:5001/api/campaigns/classify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: fTitle, description: fDesc })
+        });
+        if (classRes.ok) {
+          const data = await classRes.json();
+          if (data.success && data.category) {
+            resolvedCategory = data.category;
+            log('info', `Groq AI classified campaign under: "${resolvedCategory}"`);
+          }
+        }
+      } catch (err) {
+        log('sys', 'Groq classifier offline, falling back to manual tag');
+      }
+
       const { id, txHash } = await StellarService.createCampaign(fTitle, goal, days)
       log('success', `✓ Campaign #${id} deployed! tx: ${txHash.slice(0,12)}…`)
       flash('🚀', `"${fTitle}" is live on Stellar!`, txHash)
       // Sync to backend
-      await Api.apiCreateCampaign({ id, title: fTitle, description: fDesc, goal, deadline: Date.now(), image: fEmoji, category: fCat })
+      await Api.apiCreateCampaign({ id, title: fTitle, description: fDesc, goal, deadline: Date.now(), image: fEmoji, category: resolvedCategory })
       
       // Update categories mapping state locally
-      setCampaignCategories(prev => ({ ...prev, [id]: fCat }))
+      setCampaignCategories(prev => ({ ...prev, [id]: resolvedCategory }))
       
       await loadFromChain(true)
       await loadBackend()
@@ -582,11 +610,16 @@ export default function App() {
                               </div>
                             </div>
 
-                            {/* Trust badge */}
+                             {/* Trust badge */}
                             <div style={{display:'flex', gap:'0.5rem', flexWrap:'wrap', marginBottom:'0.5rem'}}>
                               <span className="trust-badge"><Star size={10}/> Trust 94/100</span>
                               <span className="info-tag tag-green">Verified NGO</span>
                               <span className="info-tag tag-blue">{campaignCategories[c.id] || 'Environment'}</span>
+                              {goalMet && (
+                                <span className="info-tag tag-green" style={{fontWeight:700}} title="Target Goal Met successfully!">
+                                  ✓ Goal Met
+                                </span>
+                              )}
                             </div>
                           </div>
 
@@ -1644,6 +1677,60 @@ export default function App() {
       )}
       {/* ── Donation Receipt Modal ─────────────────────────────────────── */}
       <DonationReceipt receipt={activeReceipt} onClose={() => setActiveReceipt(null)} />
+
+      {/* ── AI Chatbot drawer & bubble ─────────────────────────────────── */}
+      <div className="chat-bubble" onClick={() => setChatOpen(!chatOpen)}>
+        <Bell size={22}/>
+      </div>
+
+      {chatOpen && (
+        <div className="chat-drawer">
+          <div className="chat-head">
+            <span className="chat-title">🤖 CharityChain AI Assistant</span>
+            <button onClick={() => setChatOpen(false)} style={{background:'transparent', border:'none', color:'var(--t3)', cursor:'pointer'}}>✕</button>
+          </div>
+          <div className="chat-messages">
+            {chatMessages.map((msg, i) => (
+              <div key={i} className={`chat-msg ${msg.sender}`}>
+                {msg.text}
+              </div>
+            ))}
+            {chatLoading && (
+              <div className="chat-msg bot" style={{display:'flex', alignItems:'center', gap:'0.3rem'}}>
+                <Loader2 size={12} className="spin"/> thinking…
+              </div>
+            )}
+          </div>
+          <form className="chat-foot" onSubmit={async (e) => {
+            e.preventDefault();
+            if (!chatInput.trim() || chatLoading) return;
+            const uText = chatInput;
+            setChatInput('');
+            setChatMessages(p => [...p, { sender: 'user', text: uText }]);
+            setChatLoading(true);
+            try {
+              const res = await fetch('http://localhost:5001/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: uText, chatHistory: chatMessages })
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data.success && data.reply) {
+                  setChatMessages(p => [...p, { sender: 'bot', text: data.reply }]);
+                }
+              }
+            } catch {
+              setChatMessages(p => [...p, { sender: 'bot', text: 'Sorry, I am having trouble connecting to the Groq AI service.' }]);
+            } finally {
+              setChatLoading(false);
+            }
+          }}>
+            <input className="chat-input" placeholder="Type a message…" value={chatInput} onChange={e => setChatInput(e.target.value)}/>
+            <button className="chat-send" type="submit">Send</button>
+          </form>
+        </div>
+      )}
     </>
   )
 }
