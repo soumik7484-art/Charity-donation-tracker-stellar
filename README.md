@@ -1,118 +1,74 @@
 # 💝 CharityChain — Blockchain Charity Donation Tracker
 
+<p align="center">
+  <img src="./screenshot.png" alt="CharityChain Logo" width="100%" style="border-radius: 12px; box-shadow: 0 4px 30px rgba(0,0,0,0.1);" />
+</p>
+
+---
+
+### 🌟 Introduction
 > A fully decentralized charity donation platform built on the **Stellar blockchain** using **Soroban smart contracts**. Every campaign, donation, and claim is a real on-chain transaction — no middlemen, no hidden fees, zero trust required.
 
 ---
 
-## 📸 Screenshot
+## 🔗 Live Deployments
 
-![CharityChain Dashboard](./screenshot.png)
-
----
-
-## 🌐 Live Demo
-
-| Item | Link |
-|---|---|
-| 🚀 **Live App** | [https://soumik7484-art.github.io/Charity-donation-tracker-stellar/](https://soumik7484-art.github.io/Charity-donation-tracker-stellar/) |
-| 🔗 **Smart Contract** | [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6) |
-| 🔍 **Contract ID** | `CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6` |
-| 🌐 **Network** | Stellar Testnet |
-
----
-
-## 🛠️ Tech Stack
-
-### Blockchain
-| Technology | Role |
-|---|---|
-| **Stellar Network** | The blockchain platform |
-| **Soroban SDK v25.3.1** | Smart contract framework |
-| **Rust (2021 edition)** | Smart contract language |
-| **WebAssembly (WASM)** | Contract compilation target |
-| **Stellar CLI v25.2.0** | Build, deploy & invoke tool |
-
-### Frontend
-| Technology | Role |
-|---|---|
-| **React 18 + TypeScript** | UI framework |
-| **Vite** | Build tool & dev server |
-| **@stellar/stellar-sdk** | Blockchain integration (sign & submit txs) |
-| **lucide-react** | Icon library |
-| **jsPDF & html2canvas** | Client-side receipt generator |
-
-### Backend & AI
-| Technology | Role |
-|---|---|
-| **Node.js + Express** | Backend API router |
-| **Vercel Serverless** | Cloud host |
-| **Groq SDK** | Llama-3.3-70b-versatile query client |
-
-### Design
-| Resource | Usage |
-|---|---|
-| **Syne** | Display headings |
-| **Bricolage Grotesque** | Body text |
-| **Inter** | UI labels & buttons |
-| **JetBrains Mono** | Terminal & contract addresses |
+| Resource | URL |
+| :--- | :--- |
+| 🚀 **Live Production App** | [Click here to view Live Site](https://soumik7484-art.github.io/Charity-donation-tracker-stellar/) |
+| 🤖 **Serverless Backend API** | [Click here to view API Info](https://backend-two-gamma-80.vercel.app/api/info) |
+| 🔗 **Smart Contract Explorer** | [View CBNOEZI2...QXXX6 on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6) |
+| 🌐 **Target Network** | Stellar Testnet (RPC: `soroban-testnet.stellar.org`) |
 
 ---
 
 ## ✨ Features
 
-- ✅ **Create campaigns** — deployed as real Soroban transactions on Stellar Testnet
-- ✅ **Donate** — donations permanently recorded on the blockchain ledger
-- ✅ **Claim funds** — creator signs a claim transaction once goal is reached
-- ✅ **Live terminal** — real-time RPC console showing ledger events
-- ✅ **Contract storage explorer** — reads live data directly from the blockchain
-- ✅ **Transaction links** — every action links to stellar.expert block explorer
-- ✅ **Zero platform fees** — the contract is the law, no company in the middle
-- ✅ **AI Chatbot & Assistant** — powered by Groq Llama-3.3-70b-versatile to help users navigate transactions, escrow, and milestones
-- ✅ **Auto-Categorizer** — automatically classifies campaigns (e.g. Health & Water, Environment) using AI LLM classification
-- ✅ **Donation Receipt Generator** — triggers instant client-side downloadable PDF receipts using jsPDF on successful transaction completion
-- ✅ **Vercel Serverless Backend** — fully scalable backend running on Vercel handling secure API communication and database updates
-- ✅ **Premium Light Green Theme** — beautiful responsive pale-green dashboard UI styling (#f2f8f4)
+* 🚀 **On-Chain Campaigns** — Create and fundraise directly on Stellar Testnet.
+* 💸 **Immutable Transactions** — Every donation is permanent and transparently audit-mapped.
+* 🔒 **Secure Milestone Escrow** — Funds are released to NGOs only upon milestone sign-off.
+* 🤖 **AI Assistant Chatbot** — Powered by Groq's **Llama-3.3-70b-versatile** model to help donors navigate the platform.
+* 🏷️ **AI Auto-Classifier** — Campaigns are automatically classified under tags like *Health & Water* or *Environment* based on description.
+* 📄 **Downloadable PDF Receipts** — Automatically generates clean donation slips using `jsPDF`.
+* 💻 **Integrated RPC Console** — Real-time logging of Stellar ledger closures and transactions.
+* 🎨 **Premium Glassmorphic Theme** — Modern, responsive pale-green aesthetic (`#f2f8f4`).
 
 ---
 
-## 📁 Project Structure
+## 🛠️ Technology Stack
 
-```
-charity-donation-tracker/
-│
-├── contracts/
-│   ├── hello-world/              ← Original template contract
-│   └── charity-tracker/          ← REAL charity tracker contract
-│       ├── Cargo.toml
-│       └── src/lib.rs            ← Rust smart contract (6 functions)
-│
-├── frontend/
-│   ├── src/
-│   │   ├── App.tsx               ← Main React dashboard
-│   │   ├── stellar.ts            ← Blockchain service layer
-│   │   └── index.css             ← Premium light-green UI
-│   ├── package.json
-│   └── vite.config.ts
-│
-└── Cargo.toml                    ← Rust workspace
-```
+### Smart Contract Layer
+* **Soroban SDK v25.3.1**: Smart contract framework.
+* **Rust (2021 edition)**: Safe, fast language for contract logic.
+* **WebAssembly (WASM)**: Compilation target for high-performance execution.
+
+### Frontend Layer
+* **React 18 + TypeScript**: Dynamic UI layout.
+* **Vite**: Ultra-fast hot module reloading & build tool.
+* **@stellar/stellar-sdk**: Wallet signing and RPC query integration.
+* **jsPDF & html2canvas**: High-fidelity PDF document rendering.
+
+### Backend & AI Layer
+* **Express.js (Node)**: Middleware API for AI processing.
+* **Vercel Serverless**: Serverless backend hosting.
+* **Groq SDK**: Connection client to the Llama-3.3-70b model.
 
 ---
 
-## 🔧 Smart Contract Functions
+## 🔧 Smart Contract API
 
 ```rust
 // Create a new fundraising campaign
-create_campaign(creator, title, goal, duration_ledgers) -> u32
+create_campaign(creator: Address, title: String, goal: i128, duration_ledgers: u32) -> u32
 
 // Record a donation on-chain
-donate(campaign_id, amount)
+donate(campaign_id: u32, amount: i128)
 
 // Creator claims funds after goal is reached
-claim(campaign_id)
+claim(campaign_id: u32)
 
-// Read a single campaign
-get_campaign(campaign_id) -> Campaign
+// Read details of a campaign
+get_campaign(campaign_id: u32) -> Campaign
 
 // Get total campaigns count
 get_count() -> u32
@@ -123,111 +79,66 @@ get_all() -> Vec<Campaign>
 
 ---
 
-## 🚀 Getting Started
+## 📁 Project Architecture
 
-### Prerequisites
-- [Rust](https://rustup.rs/) + `wasm32v1-none` target
-- [Stellar CLI](https://developers.stellar.org/docs/tools/developer-tools/cli/stellar-cli)
-- [Node.js 18+](https://nodejs.org/)
-
-### 1. Clone the repo
-```bash
-git clone https://github.com/soumik7484-art/Charity-donation-tracker-stellar.git
-cd Charity-donation-tracker-stellar
+```
+charity-donation-tracker/
+│
+├── contracts/
+│   └── charity-tracker/          ← Soroban smart contract source code
+│       ├── Cargo.toml
+│       └── src/lib.rs            ← Rust Smart Contract Logic
+│
+├── backend/
+│   ├── server.js                 ← Express Router (Vercel Serverless Function)
+│   ├── db.js                     ← Temporary database fallback handler (/tmp writeable cache)
+│   └── vercel.json               ← Deployment config
+│
+└── frontend/
+    ├── src/
+    │   ├── App.tsx               ← Main React application
+    │   ├── stellar.ts            ← Stellar/Freighter wallet connection layer
+    │   └── DonationReceipt.tsx   ← jsPDF template layout
+    └── package.json
 ```
 
-### 2. Build the smart contract
+---
+
+## 🚀 Getting Started
+
+### 1. Build the Smart Contract
 ```bash
 stellar contract build
 ```
 
-### 3. Deploy to Testnet
+### 2. Deploy to Stellar Testnet
 ```bash
-# Create a funded testnet account
-stellar keys generate alice --network testnet --fund
+stellar keys generate donor --network testnet --fund
 
-# Deploy the contract
 stellar contract deploy \
   --wasm target/wasm32v1-none/release/charity_tracker.wasm \
-  --source-account alice \
+  --source-account donor \
   --network testnet
 ```
 
-### 4. Update Contract ID
-Copy the deployed contract ID and update `frontend/src/stellar.ts`:
-```typescript
-export let CONTRACT_ID = 'YOUR_CONTRACT_ID_HERE'
-```
-
-### 5. Run the frontend
+### 3. Start Frontend & Backend
+Configure contract IDs in `frontend/src/stellar.ts`, then start the client:
 ```bash
-cd frontend
+# In /frontend
 npm install
 npm run dev
 ```
 
-Open **http://localhost:5173** 🎉
-
 ---
 
-## 🏗️ Architecture
+## 📊 Performance & Metrics
 
-```
-Browser (React + TypeScript)
-        │
-        ▼
-  stellar.ts  ← Signs transactions with Stellar keypair
-        │
-        ▼
-@stellar/stellar-sdk
-        │
-        ▼
-Stellar Testnet RPC
-(soroban-testnet.stellar.org)
-        │
-        ▼
-Soroban Smart Contract (Rust/WASM)
-        │
-        ▼
-Stellar Blockchain Ledger
-(Permanent · Immutable · Public)
-```
-
----
-
-## 💡 Why CharityChain?
-
-| Traditional Charity Platforms | CharityChain |
-|---|---|
-| You must **trust the company** | Smart contract **enforces rules in code** |
-| **5–8% platform fees** | **0% fees** |
-| Data can be **manipulated** | Blockchain records are **immutable** |
-| Company can **shut you down** | Lives on blockchain **forever** |
-| Donations can be **faked** | Every tx is **publicly verifiable** |
-
-> *"Traditional charity platforms ask you to trust them. CharityChain makes trust unnecessary — the code is the contract."*
-
----
-
-## 📊 Key Metrics
-
-| Metric | Value |
-|---|---|
-| Contract size | 5,665 bytes |
-| Avg transaction time | ~6 seconds |
-| Platform fee | **0%** |
-| Network fee per tx | ~0.00216 XLM (~$0.00003) |
-| Smart contract functions | 6 |
-| Blockchain | Stellar Testnet |
-
----
-
-## 👨‍💻 Built With ❤️ on Stellar
-
-Built as a demonstration of **Soroban smart contracts** on the **Stellar network** — bringing full transparency and decentralization to charitable giving.
+* **Contract Size**: 5,665 bytes
+* **Average Transaction Speed**: ~6 seconds (Stellar ledger close time)
+* **Gas / Network Fees**: ~0.00216 XLM ($0.00003 USD)
+* **Escrow Platform Fee**: **0%** (Decentralized contract execution)
 
 ---
 
 ## 📜 License
-
-MIT License — free to use, modify and build upon.
+This project is licensed under the MIT License - feel free to build upon it!
