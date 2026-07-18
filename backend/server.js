@@ -16,8 +16,15 @@ db.connectDB().then(() => {
   console.log(`Database initialized in [${db.getMode()}] mode`);
 });
 
-// AI Fraud Detection Helper function
-function runFraudCheck(donation, allDonations) {
+const { Groq } = require('groq-sdk');
+
+// Instantiate Groq Client securely (API key loaded from environmental variables or secure runtime params)
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY || ''
+});
+
+// Dynamic AI LLM & Heuristic Fraud Detection Helper function
+async function runFraudCheck(donation, allDonations) {
   const { sender, amount, campaignId } = donation;
   let score = 0;
   let explanations = [];
@@ -73,10 +80,37 @@ function runFraudCheck(donation, allDonations) {
     explanations.push("Transaction shows regular parameters, standard velocity, and safe sender repute.");
   }
 
+  // Enhance diagnostics with Groq Llama-3 model analysis if available
+  let dynamicExplanation = explanations.join(" ");
+  try {
+    const prompt = `Analyze this blockchain donation for potential laundering, duplication, or velocity fraud.
+Transaction details:
+- Sender Wallet: ${sender}
+- Campaign ID: ${campaignId}
+- Amount: ${amount} XLM
+- Heuristic Risk Score: ${score}
+- Flags: ${explanations.join("; ")}
+
+Write a concise 1-sentence risk summary for the administrator. Keep it under 25 words.`;
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama3-8b-8192',
+      max_tokens: 45,
+      temperature: 0.1
+    });
+
+    if (chatCompletion.choices[0]?.message?.content) {
+      dynamicExplanation = `[Groq AI] ${chatCompletion.choices[0].message.content.trim()}`;
+    }
+  } catch (err) {
+    console.error("Groq API error, falling back to heuristics:", err.message);
+  }
+
   return {
     fraudScore: score,
     riskLevel,
-    explanation: explanations.join(" "),
+    explanation: dynamicExplanation,
     recommendedAction: action
   };
 }
@@ -265,56 +299,57 @@ app.post('/api/donations', (req, res) => {
     anonymous: !!anonymous
   };
 
-  // Run AI Fraud analysis
-  const fraudResults = runFraudCheck(newDonation, donations);
+  // Run AI Fraud analysis (asynchronously with Groq completions)
+  runFraudCheck(newDonation, donations).then(fraudResults => {
+    // If critical, flag but save. For demo hackathon purposes, we log it.
+    const newAlert = {
+      id: `alert-${Date.now()}`,
+      txHash: newDonation.txHash,
+      sender: newDonation.sender,
+      amount: newDonation.amount,
+      fraudScore: fraudResults.fraudScore,
+      riskLevel: fraudResults.riskLevel,
+      explanation: fraudResults.explanation,
+      recommendedAction: fraudResults.recommendedAction,
+      timestamp: new Date().toISOString()
+    };
 
-  // If critical, flag but save. For demo hackathon purposes, we log it.
-  const newAlert = {
-    id: `alert-${Date.now()}`,
-    txHash: newDonation.txHash,
-    sender: newDonation.sender,
-    amount: newDonation.amount,
-    fraudScore: fraudResults.fraudScore,
-    riskLevel: fraudResults.riskLevel,
-    explanation: fraudResults.explanation,
-    recommendedAction: fraudResults.recommendedAction,
-    timestamp: new Date().toISOString()
-  };
+    db.insert('fraudAlerts', newAlert);
+    db.insert('donations', newDonation);
 
-  db.insert('fraudAlerts', newAlert);
-  db.insert('donations', newDonation);
+    // Update campaign raised value locally if not synced
+    db.update('campaigns', c => c.id === Number(campaignId), c => {
+      c.raised += Number(amount);
+      return c;
+    });
 
-  // Update campaign raised value locally if not synced
-  db.update('campaigns', c => c.id === Number(campaignId), c => {
-    c.raised += Number(amount);
-    return c;
-  });
-
-  // Push notifications
-  db.insert('notifications', {
-    id: Date.now().toString(),
-    type: "donation",
-    text: `Donation of ${amount} XLM received! Risk: ${fraudResults.riskLevel} (Score: ${fraudResults.fraudScore})`,
-    time: "Just now",
-    read: false
-  });
-
-  if (fraudResults.riskLevel === 'Critical') {
+    // Push notifications
     db.insert('notifications', {
-      id: `crit-${Date.now()}`,
-      type: "fraud",
-      text: `⚠️ CRITICAL FRAUD ALERT: suspicious activity on wallet ${sender.slice(0, 8)}…`,
+      id: Date.now().toString(),
+      type: "donation",
+      text: `Donation of ${amount} XLM received! Risk: ${fraudResults.riskLevel} (Score: ${fraudResults.fraudScore})`,
       time: "Just now",
       read: false
     });
-  }
 
-  res.json({
-    success: true,
-    donation: newDonation,
-    fraudAlert: newAlert
+    if (fraudResults.riskLevel === 'Critical') {
+      db.insert('notifications', {
+        id: `crit-${Date.now()}`,
+        type: "fraud",
+        text: `⚠️ CRITICAL FRAUD ALERT: suspicious activity on wallet ${sender.slice(0, 8)}…`,
+        time: "Just now",
+        read: false
+      });
+    }
+
+    res.json({ success: true, donation: newDonation, fraudAnalysis: fraudResults });
+  }).catch(err => {
+    console.error("Fraud analysis execution error:", err);
+    res.status(500).json({ error: "Failed to run fraud checks" });
   });
-});
+})
+
+// Redundant handler body removed during async refactor
 
 app.get('/api/donations', (req, res) => {
   const donations = db.get('donations');

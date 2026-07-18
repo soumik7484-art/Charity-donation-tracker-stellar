@@ -110,70 +110,9 @@
       "raised": null
     }
   ],
-  "donations": [
-    {
-      "txHash": "3b2c0f117134cf43f8ffc1190da5adac380ed1033cd25d25ba06a684b577dcfa",
-      "blockNumber": 3674629,
-      "timestamp": "2026-07-18T18:03:44.865Z",
-      "amount": 2,
-      "sender": "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
-      "receiver": "CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6",
-      "campaignId": 1,
-      "status": "Success",
-      "anonymous": false
-    },
-    {
-      "txHash": "2a965c3b793297bff7006974acafa6e6f6a6601cdfa73da1756ac36d04f9764a",
-      "blockNumber": 3676863,
-      "timestamp": "2026-07-18T19:05:40.962Z",
-      "amount": 33,
-      "sender": "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
-      "receiver": "CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6",
-      "campaignId": 2,
-      "status": "Success",
-      "anonymous": false
-    }
-  ],
-  "fraudAlerts": [
-    {
-      "id": "alert-1",
-      "txHash": "3b2c...dcfa",
-      "sender": "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
-      "amount": 2,
-      "fraudScore": 8,
-      "riskLevel": "Low",
-      "explanation": "Transaction amount and frequency are well within normal limits. Wallet has high historical reputation.",
-      "recommendedAction": "None. Auto-approve.",
-      "timestamp": "2026-07-18T19:03:44.866Z"
-    },
-    {
-      "id": "alert-1784401540963",
-      "txHash": "2a965c3b793297bff7006974acafa6e6f6a6601cdfa73da1756ac36d04f9764a",
-      "sender": "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
-      "amount": 33,
-      "fraudScore": 0,
-      "riskLevel": "Low",
-      "explanation": "Transaction shows regular parameters, standard velocity, and safe sender repute.",
-      "recommendedAction": "Auto-Approve",
-      "timestamp": "2026-07-18T19:05:40.963Z"
-    }
-  ],
-  "notifications": [
-    {
-      "id": "1",
-      "type": "donation",
-      "text": "Donation of 2 XLM received for Save the Amazon Rainforest",
-      "time": "Just now",
-      "read": false
-    },
-    {
-      "id": "1784401540967",
-      "type": "donation",
-      "text": "Donation of 33 XLM received! Risk: Low (Score: 0)",
-      "time": "Just now",
-      "read": false
-    }
-  ],
+  "donations": [],
+  "fraudAlerts": [],
+  "notifications": [],
   "settings": {
     "frozenAccounts": []
   }
