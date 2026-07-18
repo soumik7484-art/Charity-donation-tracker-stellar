@@ -1,0 +1,150 @@
+{
+  "ngos": [
+    {
+      "id": "GD3H-ALICE",
+      "address": "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
+      "name": "Save the Amazon Foundation",
+      "verified": true,
+      "documents": [
+        "incorporation_doc.pdf",
+        "tax_exemption_501c3.pdf"
+      ],
+      "successRate": 98,
+      "transparencyLevel": "Excellent",
+      "trustScore": 96,
+      "reviewsCount": 24,
+      "description": "NGO dedicated to preserving rainforest ecology and supporting indigenous communities."
+    },
+    {
+      "id": "NGO-WATER",
+      "address": "GB52...WATER",
+      "name": "Kenya Clean Water Alliance",
+      "verified": true,
+      "documents": [
+        "ngo_registration.pdf"
+      ],
+      "successRate": 92,
+      "transparencyLevel": "High",
+      "trustScore": 94,
+      "reviewsCount": 12,
+      "description": "Drilling water wells and installing filtration systems in arid rural areas."
+    }
+  ],
+  "campaigns": [
+    {
+      "id": 1,
+      "title": "Save the Amazon Rainforest",
+      "description": "Funding reforestation efforts to plant native trees across deforested areas of the Amazon basin and protect endangered wildlife habitats.",
+      "creator": "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
+      "image": "🌳",
+      "category": "Environment",
+      "milestones": [
+        {
+          "index": 0,
+          "title": "Purchase 5,000 Saplings",
+          "amount": 300,
+          "approved": true,
+          "claimed": true
+        },
+        {
+          "index": 1,
+          "title": "Hire Planting Crews & Transport",
+          "amount": 400,
+          "approved": false,
+          "claimed": false
+        },
+        {
+          "index": 2,
+          "title": "Post-planting Satellite Monitoring Setup",
+          "amount": 300,
+          "approved": false,
+          "claimed": false
+        }
+      ],
+      "utilizations": [
+        {
+          "amount": 15000,
+          "category": "Sapling Procurement",
+          "details": "Bought 2,500 native mahogany & rosewood saplings"
+        },
+        {
+          "amount": 10000,
+          "category": "Local Labor",
+          "details": "Paid 12 local conservationists for site prep"
+        }
+      ],
+      "trustScore": 96
+    },
+    {
+      "id": 2,
+      "title": "Clean Water Wells Kenya",
+      "description": "Building 3 solar-powered water pumps in the Kakuma region, providing clean drinking water to over 15,000 residents.",
+      "creator": "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
+      "image": "💧",
+      "category": "Health & Water",
+      "milestones": [
+        {
+          "index": 0,
+          "title": "Geological Survey & Driller Mobilization",
+          "amount": 4000,
+          "approved": true,
+          "claimed": false
+        },
+        {
+          "index": 1,
+          "title": "Well Drilling & Casing Completion",
+          "amount": 5000,
+          "approved": false,
+          "claimed": false
+        },
+        {
+          "index": 2,
+          "title": "Solar Pump Installation & Handover",
+          "amount": 3000,
+          "approved": false,
+          "claimed": false
+        }
+      ],
+      "utilizations": [],
+      "trustScore": 94
+    }
+  ],
+  "donations": [
+    {
+      "txHash": "3b2c0f117134cf43f8ffc1190da5adac380ed1033cd25d25ba06a684b577dcfa",
+      "blockNumber": 3674629,
+      "timestamp": "2026-07-18T18:03:44.865Z",
+      "amount": 2,
+      "sender": "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
+      "receiver": "CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6",
+      "campaignId": 1,
+      "status": "Success",
+      "anonymous": false
+    }
+  ],
+  "fraudAlerts": [
+    {
+      "id": "alert-1",
+      "txHash": "3b2c...dcfa",
+      "sender": "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
+      "amount": 2,
+      "fraudScore": 8,
+      "riskLevel": "Low",
+      "explanation": "Transaction amount and frequency are well within normal limits. Wallet has high historical reputation.",
+      "recommendedAction": "None. Auto-approve.",
+      "timestamp": "2026-07-18T19:03:44.866Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "1",
+      "type": "donation",
+      "text": "Donation of 2 XLM received for Save the Amazon Rainforest",
+      "time": "Just now",
+      "read": false
+    }
+  ],
+  "settings": {
+    "frozenAccounts": []
+  }
+}
