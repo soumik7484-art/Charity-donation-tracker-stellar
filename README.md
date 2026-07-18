@@ -1,13 +1,22 @@
 # 💝 CharityChain — Blockchain Charity Donation Tracker
 
 <p align="center">
-  <img src="./screenshot.png" alt="CharityChain Logo" width="100%" style="border-radius: 12px; box-shadow: 0 4px 30px rgba(0,0,0,0.1);" />
+  <img src="https://img.shields.io/badge/React-18.3.1-blue?logo=react&logoColor=white&style=for-the-badge" alt="React" />
+  <img src="https://img.shields.io/badge/Node.js-20.x-green?logo=node.js&logoColor=white&style=for-the-badge" alt="Node" />
+  <img src="https://img.shields.io/badge/Stellar-Testnet-lightgrey?logo=stellar&logoColor=black&style=for-the-badge" alt="Stellar" />
+  <img src="https://img.shields.io/badge/Soroban-WASM-orange?logo=webassembly&logoColor=white&style=for-the-badge" alt="Soroban" />
+  <img src="https://img.shields.io/badge/Groq_AI-Llama_3.3-cyan?logo=openai&logoColor=white&style=for-the-badge" alt="Groq AI" />
+  <img src="https://img.shields.io/badge/License-MIT-yellowgreen?style=for-the-badge" alt="License" />
+</p>
+
+<p align="center">
+  <b>A modern decentralized charity platform built on the Stellar network using Soroban smart contracts, Vercel Serverless routing, and Groq Llama-3.3 AI diagnostics.</b>
 </p>
 
 ---
 
 ### 🌟 Introduction
-> A fully decentralized charity donation platform built on the **Stellar blockchain** using **Soroban smart contracts**. Every campaign, donation, and claim is a real on-chain transaction — no middlemen, no hidden fees, zero trust required.
+CharityChain is a fully transparent, decentralized donation platform. Unlike traditional platforms that require you to trust a centralized middleman, CharityChain operates directly on-chain using smart contracts. Every campaign registration, donor transaction, and milestone fund release is executed securely via WebAssembly-compiled logic on the Stellar network.
 
 ---
 
