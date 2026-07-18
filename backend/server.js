@@ -18,7 +18,7 @@ db.connectDB().then(() => {
 
 const { Groq } = require('groq-sdk');
 
-// Instantiate Groq Client securely (API key loaded from environmental variables or secure runtime params)
+// Instantiate Groq Client securely (API key loaded from environmental variables or secure runtime fallback)
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || ''
 });

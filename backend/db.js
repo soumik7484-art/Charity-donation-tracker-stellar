@@ -2,7 +2,11 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 
-const DB_FILE = path.join(__dirname, 'db.json');
+// On Vercel serverless environments, the filesystem is read-only except for '/tmp'.
+// We check if running on Vercel and write the JSON database to /tmp/db.json
+const DB_FILE = process.env.VERCEL
+  ? path.join('/tmp', 'db.json')
+  : path.join(__dirname, 'db.json');
 
 // Initialize local JSON database if not exists
 if (!fs.existsSync(DB_FILE)) {
