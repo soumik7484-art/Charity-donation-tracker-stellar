@@ -134,6 +134,8 @@ export default function App() {
   const [uDetails, setUDetails] = useState('')
 
   const logRef = useRef<HTMLDivElement>(null)
+  const chatRef = useRef<HTMLDivElement>(null)
+
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   function log(type: LogEntry['type'], msg: string) {
@@ -148,6 +150,11 @@ export default function App() {
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
   }, [logs])
+
+  useEffect(() => {
+    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight
+  }, [chatMessages, chatLoading])
+
 
   // ── Load blockchain data ──────────────────────────────────────────────────
   const loadFromChain = useCallback(async (quiet = false) => {
@@ -1691,7 +1698,7 @@ export default function App() {
             <span className="chat-title">🤖 CharityChain AI Assistant</span>
             <button onClick={() => setChatOpen(false)} style={{background:'transparent', border:'none', color:'var(--t3)', cursor:'pointer'}}>✕</button>
           </div>
-          <div className="chat-messages">
+          <div className="chat-messages" ref={chatRef}>
             {chatMessages.map((msg, i) => (
               <div key={i} className={`chat-msg ${msg.sender}`}>
                 {msg.text}
