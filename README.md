@@ -15,25 +15,6 @@
 
 ---
 
-### 📸 Application Previews
-
-<p align="center">
-  <b>Dashboard Interface</b>
-  <br/>
-  <img src="./dashboard.png" alt="GiveChain Dashboard UI" width="90%" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-bottom: 20px;" />
-  <br/><br/>
-  <b>AI Assistant & Chatbot</b>
-  <br/>
-  <img src="./chatbot.png" alt="GiveChain AI Chatbot Interface" width="45%" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);" />
-</p>
-
----
-
-### 🌟 Introduction
-GiveChain transforms traditional charity donation trackers into a fully transparent, verifiable milestone-based platform. Operating directly on-chain on the Stellar network using WebAssembly Soroban smart contracts, GiveChain ensures that donation funds remain locked in escrow, releasing only when the creator uploads cryptographic proof of spend (stored on IPFS) and it receives admin validation.
-
----
-
 ## 🔗 Live Deployments
 
 | Resource | URL |
@@ -45,37 +26,22 @@ GiveChain transforms traditional charity donation trackers into a fully transpar
 
 ---
 
-## ✨ Upgraded Hackathon Features
+## 🚀 Key Hackathon Upgrades
 
-* 🔒 **Milestone-Based Escrow Fund Release** — Campaigns consist of custom milestones (e.g. 40%, 30%, 30%). Funds remain locked in contract escrow. Releasing funds transfers only that milestone's allocated amount, not the full balance.
-* 📦 **IPFS Proof-of-Spend Gallery** — Creator uploads a receipt/photo per milestone before releasing funds. The IPFS CID is stored on-chain against that milestone. The frontend Proof Gallery features direct links to Pinata & public IPFS gateways.
-* ↩️ **Tracked Donations & Refund Mechanism** — Connects campaign ledger deadlines and targets. Tracks individual contributions on-chain: if the deadline passes and the goal is not met, donors can claim their exact contribution back.
-* ✅ **Charity Verification Badge** — Admin-controlled creator allowlist mapping. Creator campaigns created by a verified address display a "✅ Verified Charity" badge.
-* 🛡️ **Owner Wallet-Gated Admin Panel** — A secure panel for the contract owner to approve/revoke verification status for campaign creators.
-* 📊 **Donor Dashboard ("My Donations")** — A dashboard page showing campaign donation records, milestone proof releases, and refund eligibility indicators.
-* 🤖 **AI Assistant Chatbot** — Powered by Groq's **Llama-3.3-70b-versatile** model to help donors audit milestones.
-* 📄 **Downloadable PDF Receipts** — Automatically generates clean donation receipts using `jsPDF`.
+* 🔒 **Milestone-Based Escrow Fund Release**
+  Campaign funds remain securely locked in the smart contract escrow. Rather than claiming the entire balance at once, campaign creators release funds milestone-by-milestone only after completing targets.
 
----
+* 📦 **IPFS Proof-of-Spend Gallery**
+  Campaign creators upload receipts, invoices, or photo proofs to IPFS (via Pinata) for each milestone before requesting release. CIDs are stored immutably on-chain and rendered in a public Proof Gallery.
 
-## 🛠️ Technology Stack
+* ↩️ **Decentralized Refund Mechanism**
+  Tracks individual contributions on-chain: if a campaign's ledger sequence deadline passes and the target goal is not met, donors can withdraw their exact contribution back directly through the contract.
 
-### Smart Contract Layer
-* **Soroban SDK v25.3.1**: Smart contract framework.
-* **Rust (2021 edition)**: Safe, fast language for contract logic.
-* **WebAssembly (WASM)**: Compilation target for high-performance execution.
+* ✅ **Charity Verification Badge & Gated Admin Panel**
+  Includes a contract owner-gated admin control panel to verify or revoke NGO creator addresses on-chain. Approved creators automatically receive a "✅ Verified Charity" trust badge across the platform.
 
-### Frontend Layer
-* **React 18 + TypeScript**: Dynamic UI layout.
-* **Vite**: Ultra-fast hot module reloading & build tool.
-* **@stellar/stellar-sdk**: Wallet signing and RPC query integration.
-* **Pinata IPFS SDK**: IPFS file pinning and gateway helper.
-* **jsPDF & html2canvas**: High-fidelity PDF receipt rendering.
-
-### Backend & AI Layer
-* **Express.js (Node)**: Middleware API for AI processing.
-* **Vercel Serverless**: Serverless backend hosting.
-* **Groq SDK**: Connection client to the Llama-3.3-70b model.
+* 📊 **Dynamic Donor Dashboard**
+  A "My Donations" portal showing live transaction history, refund eligibility banners, and proof release status for all campaigns the donor has supported.
 
 ---
 
@@ -109,46 +75,14 @@ add_verified_creator(admin: Address, creator: Address)
 
 ---
 
-## 📁 Project Architecture
-
-```
-charity-donation-tracker/
-│
-├── contracts/
-│   └── charity-tracker/          ← Soroban smart contract source code
-│       ├── Cargo.toml
-│       └── src/lib.rs            ← Upgraded Rust Smart Contract Logic
-│
-├── backend/
-│   ├── server.js                 ← Express Router (Vercel Serverless Function)
-│   ├── db.js                     ← Temporary database fallback handler
-│   └── vercel.json               ← Deployment config
-│
-└── frontend/
-    ├── src/
-    │   ├── App.tsx               ← Main React application
-    │   ├── stellar.ts            ← Stellar/Freighter wallet connection layer
-    │   ├── ipfs.ts               ← Pinata IPFS integration client
-    │   ├── components/
-    │   │   ├── MilestoneTracker.tsx  ← Vertical timeline milestone releases
-    │   │   ├── ProofGallery.tsx      ← IPFS spent receipts view
-    │   │   ├── RefundBanner.tsx      ← Expired campaign refund banner
-    │   │   ├── DonorDashboard.tsx    ← "My Donations" statistics
-    │   │   └── AdminPanel.tsx        ← Admin creators allowlist manager
-    │   └── DonationReceipt.tsx   ← jsPDF template layout
-    └── package.json
-```
-
----
-
 ## 🚀 Getting Started
 
 ### 1. Configure Pinata IPFS Keys
 Add your Pinata API keys to `/frontend/.env.local`:
 ```env
 VITE_PINATA_API_KEY=7a29580fb935e683de77
-VITE_PINATA_API_SECRET=<your_secret_api_key>
-VITE_PINATA_JWT=<your_jwt_token>
+VITE_PINATA_API_SECRET=122ef9daa061a7b174ac37da005abfe9cf11ec0875821bb5a2f0f0441db6c83e
+VITE_PINATA_JWT=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJlMGViNTBlNy00ZTg4LTQ2ZjQtOTJhZS1kOTQ0MjI2NTI5MDkiLCJlbWFpbCI6InNvdW1pazc0ODRAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjdhMjk1ODBmYjkzNWU2ODNkZTc3Iiwic2NvcGVkS2V5U2VjcmV0IjoiMTIyZWY5ZGFhMDYxYTdiMTc0YWMzN2RhMDA1YWJmZTljZjExZWMwODc1ODIxYmI1YTJmMGYwNDQxZGI2YzgzZSIsImV4cCI6MTgxNTk5MzMzM30.hux9KYW9izFdfNrhjDl1TuxQ43nTeqMRNl4zKj1MQ3Y
 ```
 
 ### 2. Build and Deploy Contract
