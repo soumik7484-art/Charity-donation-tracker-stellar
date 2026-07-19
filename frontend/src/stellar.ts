@@ -24,7 +24,7 @@ export const NETWORK_PASSPHRASE = Networks.TESTNET
 export const EXPLORER_BASE      = 'https://stellar.expert/explorer/testnet'
 
 // The deployed charity-tracker contract ID — updated after deploy
-export let CONTRACT_ID = 'CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6'
+export let CONTRACT_ID = 'CDLC5DAK7FOCAO77IWMZHA3UG5HLEZ2DEDGGFSMCRCJ5XXOEJC4P3NRP'
 
 // Demo keypair (alice) — testnet only, no real funds
 const ALICE_SECRET  = 'SBAE77WAY5ZVM3IRAS3SM7I44R565EWRZV3NKP5QXI6XWCWQTDSDXJBZ'

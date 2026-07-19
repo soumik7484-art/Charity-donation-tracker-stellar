@@ -126,7 +126,7 @@ app.get('/api/info', (req, res) => {
     dbMode: db.getMode(),
     network: "Stellar Testnet",
     contracts: {
-      charityTracker: "CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6"
+      charityTracker: "CDLC5DAK7FOCAO77IWMZHA3UG5HLEZ2DEDGGFSMCRCJ5XXOEJC4P3NRP"
     }
   });
 });
@@ -293,7 +293,7 @@ app.post('/api/donations', (req, res) => {
     timestamp: new Date().toISOString(),
     amount: Number(amount) || 1,
     sender: sender || "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
-    receiver: receiver || "CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6",
+    receiver: receiver || "CDLC5DAK7FOCAO77IWMZHA3UG5HLEZ2DEDGGFSMCRCJ5XXOEJC4P3NRP",
     campaignId: Number(campaignId) || 1,
     status: "Success",
     anonymous: !!anonymous

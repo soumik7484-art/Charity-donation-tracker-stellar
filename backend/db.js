@@ -79,7 +79,7 @@ if (!fs.existsSync(DB_FILE)) {
         timestamp: new Date(Date.now() - 3600000).toISOString(),
         amount: 2,
         sender: "GD3HIWUDUIORRJEGMRZ6XNYEBU53XDIMUOEVMQOC5L2SFYTNQVQ5D6OB",
-        receiver: "CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6",
+        receiver: "CDLC5DAK7FOCAO77IWMZHA3UG5HLEZ2DEDGGFSMCRCJ5XXOEJC4P3NRP",
         campaignId: 1,
         status: "Success",
         anonymous: false
