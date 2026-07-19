@@ -1,11 +1,12 @@
 /**
- * App.tsx — CharityChain Web3 Platform
+ * App.tsx — GiveChain Web3 Platform
  * Full-featured blockchain charity tracker with:
  *   F1  Freighter Wallet | F2  Blockchain Transparency | F3  Donor Dashboard
  *   F4  NGO Dashboard    | F5  Fund Utilization        | F6  AI Fraud Detection
  *   F7  NGO Trust Score  | F8  Milestones/Escrow       | F9  Campaign Progress
  *   F10 Admin Panel      | F11 Public Transparency     | F12 Notifications
  *   F13 Analytics        | F14 Premium Dark UI
+ *   F15 IPFS Proof-of-Spend | F16 Refund Mechanism | F17 Verified Badge
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
@@ -19,7 +20,7 @@ import {
   Settings, Zap, RefreshCw, Loader2, AlertCircle, Shield,
   Wallet, Globe, TrendingUp, Users, Award, Search,
   Lock, Unlock, Star, CheckCircle,
-  XCircle, Eye, Download, QrCode, Activity, Target, Flag, Bot
+  XCircle, Eye, Download, QrCode, Activity, Target, Flag, Bot, FileText
 } from 'lucide-react'
 import * as StellarService from './stellar'
 import type { Campaign } from './stellar'
@@ -27,6 +28,11 @@ import * as Api from './api'
 import type { Donation, FraudAlert, NGO, Notification, AnalyticsData } from './api'
 import DonationReceipt from './DonationReceipt'
 import type { ReceiptData } from './DonationReceipt'
+import MilestoneTracker from './components/MilestoneTracker'
+import ProofGallery from './components/ProofGallery'
+import RefundBanner from './components/RefundBanner'
+import DonorDashboard from './components/DonorDashboard'
+import AdminPanel from './components/AdminPanel'
 
 
 
@@ -42,7 +48,7 @@ const BAND_COLORS = [
 ]
 const CHART_COLORS = ['#00e5a0','#00c4ff','#a78bfa','#fb923c','#f43f5e','#fbbf24']
 const CATEGORIES = ['All','Environment','Health & Water','Education','Disaster Relief','Animals','Technology']
-type View = 'dashboard' | 'donor' | 'ngo' | 'admin' | 'analytics' | 'transparency'
+type View = 'dashboard' | 'donor' | 'ngo' | 'admin' | 'analytics' | 'transparency' | 'mydonations' | 'proofgallery'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const short = (s: string) => s ? `${s.slice(0,4)}…${s.slice(-4)}` : '–'
@@ -489,8 +495,10 @@ export default function App() {
               {([
                 ['dashboard',    <Home size={13}/>,     'Dashboard'],
                 ['donor',        <Wallet size={13}/>,   'My Wallet'],
+                ['mydonations',  <Heart size={13}/>,    'My Donations'],
                 ['analytics',    <BarChart2 size={13}/>, 'Analytics'],
                 ['transparency', <Globe size={13}/>,    'Transparency'],
+                ['proofgallery', <FileText size={13}/>, 'Proofs'],
                 ['ngo',          <Shield size={13}/>,   'NGO'],
                 ['admin',        <Settings size={13}/>, 'Admin'],
               ] as [View, React.ReactNode, string][]).map(([v, icon, label]) => (
@@ -624,6 +632,16 @@ export default function App() {
                               <span className="trust-badge"><Star size={10}/> Trust 94/100</span>
                               <span className="info-tag tag-green">Verified NGO</span>
                               <span className="info-tag tag-blue">{campaignCategories[c.id] || 'Environment'}</span>
+                              {c.verified && (
+                                <span style={{
+                                  fontSize:'0.65rem', fontWeight:700, padding:'0.12rem 0.5rem',
+                                  borderRadius:99, background:'rgba(16,185,129,0.15)',
+                                  color:'#10b981', border:'1px solid rgba(16,185,129,0.3)',
+                                  display:'inline-flex', alignItems:'center', gap:3
+                                }}>
+                                  ✅ Verified Charity
+                                </span>
+                              )}
                               {goalMet && (
                                 <span className="info-tag tag-green" style={{fontWeight:700}} title="Target Goal Met successfully!">
                                   ✓ Goal Met
@@ -1213,36 +1231,22 @@ export default function App() {
                       </button>
                     </div>
 
-                    <div className="milestone-list">
-                      {[
-                        { index:0, title:'Milestone 1: Project Initiation', amount: Math.floor(c.goal*0.4), approved:true, claimed:false },
-                        { index:1, title:'Milestone 2: Execution Phase', amount: Math.floor(c.goal*0.3), approved:false, claimed:false },
-                        { index:2, title:'Milestone 3: Completion & Audit', amount: Math.floor(c.goal*0.3), approved:false, claimed:false },
-                      ].map(m => (
-                        <div className="milestone-item" key={m.index}>
-                          <div className={`milestone-dot ${m.claimed?'md-done':m.approved?'md-approved':'md-pending'}`}>
-                            {m.claimed ? '✓' : m.approved ? '✓' : m.index+1}
-                          </div>
-                          <div style={{flex:1}}>
-                            <div className="md-name">{m.title}</div>
-                            <div className="md-meta">{fmt(m.amount)} XLM · {m.claimed?'Claimed':m.approved?'Admin Approved':'Awaiting Approval'}</div>
-                          </div>
-                          <div style={{display:'flex', gap:'0.4rem'}}>
-                            {m.approved && !m.claimed && (
-                              <button className="btn-donate" onClick={async () => {
-                                await Api.apiClaimMilestone(c.id, m.index)
-                                flash('⚡','Milestone funds released!')
-                              }}>
-                                <Zap size={10}/> Release
-                              </button>
-                            )}
-                            <span className={`info-tag ${m.claimed?'tag-purple':m.approved?'tag-green':'tag-blue'}`}>
-                              {m.claimed?'Claimed':m.approved?'Approved':'Pending'}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    {/* ── RefundBanner: shown if campaign expired + goal not met */}
+                    <RefundBanner
+                      campaign={c}
+                      ledger={ledger}
+                      walletAddress={StellarService.ALICE_ADDRESS}
+                      onRefresh={() => { loadFromChain(true); loadBackend(); }}
+                    />
+
+                    {/* ── Real MilestoneTracker with IPFS proof upload ── */}
+                    <MilestoneTracker
+                      campaign={c}
+                      ledger={ledger}
+                      onRefresh={() => { loadFromChain(true); loadBackend(); }}
+                      isOwner={c.creator === StellarService.ALICE_ADDRESS}
+                      isAdmin={true}
+                    />
 
                     {/* Fund Utilization */}
                     <div className="section-head" style={{marginTop:'1rem'}}>
@@ -1394,12 +1398,86 @@ export default function App() {
                     })}
                   </div>
                 </div>
+
+                {/* ── Verified Charity Panel (AdminPanel component) ── */}
+                <div style={{marginTop:'2rem'}}>
+                  <AdminPanel
+                    walletAddress={StellarService.ALICE_ADDRESS}
+                    campaigns={campaigns}
+                    onRefresh={() => { loadFromChain(true); loadBackend(); }}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* ══════════════════════════════════════════════════════
+                MY DONATIONS VIEW (DonorDashboard component)
+            ══════════════════════════════════════════════════════ */}
+            {view === 'mydonations' && (
+              <>
+                <div style={{marginBottom:'1.5rem'}}>
+                  <h2 style={{fontSize:'1.4rem', fontWeight:800, color:'var(--t1)', marginBottom:'0.35rem'}}>
+                    <Heart size={18} style={{display:'inline', marginRight:6, verticalAlign:'middle', color:'#f43f5e'}}/>
+                    My Donations
+                  </h2>
+                  <p style={{fontSize:'0.85rem', color:'var(--t4)'}}>
+                    Your donation history, milestone proofs, and refund eligibility across all campaigns.
+                  </p>
+                </div>
+                <DonorDashboard
+                  campaigns={campaigns}
+                  donations={donations}
+                  walletAddress={StellarService.ALICE_ADDRESS}
+                  ledger={ledger}
+                  onRefresh={() => { loadFromChain(true); loadBackend(); }}
+                />
+              </>
+            )}
+
+            {/* ══════════════════════════════════════════════════════
+                PROOF GALLERY VIEW (ProofGallery for selected campaign)
+            ══════════════════════════════════════════════════════ */}
+            {view === 'proofgallery' && campaigns.length > 0 && (
+              <>
+                <div style={{marginBottom:'1.5rem'}}>
+                  <h2 style={{fontSize:'1.4rem', fontWeight:800, color:'var(--t1)', marginBottom:'0.35rem'}}>
+                    <FileText size={18} style={{display:'inline', marginRight:6, verticalAlign:'middle', color:'#a78bfa'}}/>
+                    Proof of Spend Gallery
+                  </h2>
+                  <p style={{fontSize:'0.85rem', color:'var(--t4)'}}>
+                    IPFS-verified receipts and proof documents submitted by campaign creators before fund release.
+                  </p>
+                </div>
+                {campaigns.map(c => (
+                  c.milestones.some(m => m.proof_submitted) && (
+                    <div key={c.id} style={{marginBottom:28}}>
+                      <div style={{
+                        display:'flex', alignItems:'center', gap:10, marginBottom:14,
+                        padding:'12px 16px',
+                        background:'rgba(167,139,250,0.06)',
+                        border:'1px solid rgba(167,139,250,0.2)',
+                        borderRadius:12
+                      }}>
+                        <span style={{fontSize:14, fontWeight:700, color:'#f1f5f9'}}>{c.title}</span>
+                        {c.verified && <span style={{fontSize:10, padding:'2px 8px', borderRadius:99, fontWeight:700, background:'rgba(16,185,129,0.15)', color:'#10b981', border:'1px solid rgba(16,185,129,0.3)'}}>✅ Verified</span>}
+                        <span style={{fontSize:12, color:'var(--t4)', marginLeft:'auto'}}>Campaign #{c.id}</span>
+                      </div>
+                      <ProofGallery campaign={c} />
+                    </div>
+                  )
+                ))}
+                {campaigns.every(c => !c.milestones.some(m => m.proof_submitted)) && (
+                  <div style={{textAlign:'center', padding:'60px 20px', color:'var(--t4)'}}>
+                    <FileText size={48} style={{opacity:0.2, marginBottom:16}}/>
+                    <div style={{fontSize:16}}>No proofs uploaded yet.</div>
+                  </div>
+                )}
               </>
             )}
 
             {/* Footer */}
             <footer className="footer">
-              <span>CharityChain · Soroban Smart Contracts on Stellar · Built for Web3</span>
+              <span>GiveChain · Soroban Smart Contracts on Stellar Testnet · Hackathon Edition</span>
               <a href={StellarService.explorerContractUrl()} target="_blank" rel="noopener noreferrer" style={{fontFamily:'var(--f-mono)', fontSize:'0.68rem', color:'var(--t4)'}}>
                 {StellarService.CONTRACT_ID.slice(0,20)}…
               </a>

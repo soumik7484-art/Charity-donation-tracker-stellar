@@ -2,6 +2,7 @@
  * stellar.ts
  * Real Stellar / Soroban blockchain service layer.
  * Talks to the Stellar Testnet RPC and submits real transactions.
+ * Extended with: proof submission, donor tracking, refunds, verified creator.
  */
 
 import {
@@ -18,9 +19,9 @@ import {
 import { Server, Api } from '@stellar/stellar-sdk/rpc'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-export const RPC_URL           = 'https://soroban-testnet.stellar.org'
+export const RPC_URL            = 'https://soroban-testnet.stellar.org'
 export const NETWORK_PASSPHRASE = Networks.TESTNET
-export const EXPLORER_BASE     = 'https://stellar.expert/explorer/testnet'
+export const EXPLORER_BASE      = 'https://stellar.expert/explorer/testnet'
 
 // The deployed charity-tracker contract ID — updated after deploy
 export let CONTRACT_ID = 'CBNOEZI2KQW2LT3PMYQLULE73YQ2RQMTMQNBQ5OJFYGUM2YGZ33QXXX6'
@@ -33,15 +34,27 @@ export const ALICE_ADDRESS = aliceKeypair.publicKey()
 // ─── RPC Server ───────────────────────────────────────────────────────────────
 const server = new Server(RPC_URL)
 
-// ─── Campaign type ────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
+export interface Milestone {
+  index: number
+  title: string
+  amount: number
+  approved: boolean
+  claimed: boolean
+  proof_cid: string
+  proof_submitted: boolean
+}
+
 export interface Campaign {
   id: number
   creator: string
   title: string
-  goal: number     // XLM
-  raised: number   // XLM
-  deadline: number // ledger sequence
+  goal: number       // XLM
+  raised: number     // XLM
+  deadline: number   // ledger sequence
   claimed: boolean
+  milestones: Milestone[]
+  verified: boolean  // ✅ verified charity badge
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -54,7 +67,6 @@ async function invoke(
 ): Promise<{ result: unknown; txHash?: string }> {
   const contract = new Contract(CONTRACT_ID)
 
-  // Need a real account to get the sequence number
   const accountData = await server.getAccount(ALICE_ADDRESS)
   const account = new Account(ALICE_ADDRESS, accountData.sequenceNumber())
 
@@ -66,19 +78,16 @@ async function invoke(
     .setTimeout(30)
     .build()
 
-  // Always simulate first
   const sim = await server.simulateTransaction(tx)
   if (Api.isSimulationError(sim)) {
     throw new Error(`Simulation failed: ${sim.error}`)
   }
 
-  // Read-only call — return simulated result without submitting
   if (!sign) {
     const retval = (sim as Api.SimulateTransactionSuccessResponse).result?.retval
     return { result: retval ? scValToNative(retval) : undefined }
   }
 
-  // Write call — prepare, sign, submit
   const prepared = await server.prepareTransaction(tx)
   prepared.sign(aliceKeypair)
 
@@ -87,7 +96,6 @@ async function invoke(
     throw new Error(`Submit failed: ${sendResult.errorResult}`)
   }
 
-  // Poll for confirmation
   let getResult = await server.getTransaction(sendResult.hash)
   let attempts = 0
   while (getResult.status === 'NOT_FOUND' && attempts < 30) {
@@ -110,15 +118,13 @@ async function invoke(
   }
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+// ─── Read Functions ───────────────────────────────────────────────────────────
 
-/** Read total number of campaigns from chain */
 export async function getCount(): Promise<number> {
   const { result } = await invoke('get_count', [])
   return Number(result ?? 0)
 }
 
-/** Read a single campaign from chain */
 export async function getCampaign(id: number): Promise<Campaign> {
   const { result } = await invoke('get_campaign', [
     nativeToScVal(id, { type: 'u32' }),
@@ -126,36 +132,55 @@ export async function getCampaign(id: number): Promise<Campaign> {
   return parseCampaign(result as Record<string, unknown>)
 }
 
-/** Read all campaigns from chain */
 export async function getAllCampaigns(): Promise<Campaign[]> {
   const { result } = await invoke('get_all', [])
   if (!Array.isArray(result)) return []
   return (result as Record<string, unknown>[]).map(parseCampaign)
 }
 
-/** Create a new campaign on-chain */
+export async function getDonorContribution(campaignId: number, donor: string): Promise<number> {
+  try {
+    const { result } = await invoke('get_donor_contribution', [
+      nativeToScVal(campaignId, { type: 'u32' }),
+      nativeToScVal(donor, { type: 'address' }),
+    ])
+    return Number(result ?? 0)
+  } catch { return 0 }
+}
+
+export async function isVerifiedCreator(address: string): Promise<boolean> {
+  try {
+    const { result } = await invoke('is_verified_creator', [
+      nativeToScVal(address, { type: 'address' }),
+    ])
+    return Boolean(result ?? false)
+  } catch { return false }
+}
+
+// ─── Write Functions ──────────────────────────────────────────────────────────
+
 export async function createCampaign(
   title: string,
   goalXlm: number,
   durationDays: number
 ): Promise<{ id: number; txHash: string }> {
-  const durationLedgers = durationDays * 14_400 // ~6s per ledger
+  const durationLedgers = durationDays * 14_400
 
   const { result, txHash } = await invoke(
     'create_campaign',
     [
       nativeToScVal(ALICE_ADDRESS, { type: 'address' }),
+      nativeToScVal(ALICE_ADDRESS, { type: 'address' }), // admin = alice for demo
       nativeToScVal(title, { type: 'string' }),
       nativeToScVal(BigInt(goalXlm), { type: 'i128' }),
       nativeToScVal(durationLedgers, { type: 'u32' }),
     ],
-    true // sign & submit
+    true
   )
 
   return { id: Number(result), txHash: txHash! }
 }
 
-/** Record a donation on-chain */
 export async function donate(
   campaignId: number,
   amountXlm: number
@@ -166,12 +191,106 @@ export async function donate(
       nativeToScVal(campaignId, { type: 'u32' }),
       nativeToScVal(BigInt(amountXlm), { type: 'i128' }),
     ],
-    true // sign & submit
+    true
   )
   return { txHash: txHash! }
 }
 
-/** Claim a completed campaign on-chain */
+export async function donateTracked(
+  campaignId: number,
+  amountXlm: number
+): Promise<{ txHash: string }> {
+  const { txHash } = await invoke(
+    'donate_tracked',
+    [
+      nativeToScVal(campaignId, { type: 'u32' }),
+      nativeToScVal(ALICE_ADDRESS, { type: 'address' }),
+      nativeToScVal(BigInt(amountXlm), { type: 'i128' }),
+    ],
+    true
+  )
+  return { txHash: txHash! }
+}
+
+export async function claimRefund(
+  campaignId: number
+): Promise<{ txHash: string; amount: number }> {
+  const { txHash, result } = await invoke(
+    'claim_refund',
+    [
+      nativeToScVal(campaignId, { type: 'u32' }),
+      nativeToScVal(ALICE_ADDRESS, { type: 'address' }),
+    ],
+    true
+  )
+  return { txHash: txHash!, amount: Number(result ?? 0) }
+}
+
+export async function submitProof(
+  campaignId: number,
+  milestoneIndex: number,
+  cid: string
+): Promise<{ txHash: string }> {
+  const { txHash } = await invoke(
+    'submit_proof',
+    [
+      nativeToScVal(campaignId, { type: 'u32' }),
+      nativeToScVal(milestoneIndex, { type: 'u32' }),
+      nativeToScVal(ALICE_ADDRESS, { type: 'address' }),
+      nativeToScVal(cid, { type: 'string' }),
+    ],
+    true
+  )
+  return { txHash: txHash! }
+}
+
+export async function createMilestone(
+  campaignId: number,
+  title: string,
+  amount: number
+): Promise<{ txHash: string; index: number }> {
+  const { txHash, result } = await invoke(
+    'create_milestone',
+    [
+      nativeToScVal(campaignId, { type: 'u32' }),
+      nativeToScVal(title, { type: 'string' }),
+      nativeToScVal(BigInt(amount), { type: 'i128' }),
+    ],
+    true
+  )
+  return { txHash: txHash!, index: Number(result ?? 0) }
+}
+
+export async function approveMilestone(
+  campaignId: number,
+  milestoneIndex: number
+): Promise<{ txHash: string }> {
+  const { txHash } = await invoke(
+    'approve_milestone',
+    [
+      nativeToScVal(campaignId, { type: 'u32' }),
+      nativeToScVal(milestoneIndex, { type: 'u32' }),
+    ],
+    true
+  )
+  return { txHash: txHash! }
+}
+
+export async function claimMilestone(
+  campaignId: number,
+  milestoneIndex: number
+): Promise<{ txHash: string }> {
+  const { txHash } = await invoke(
+    'claim_milestone',
+    [
+      nativeToScVal(campaignId, { type: 'u32' }),
+      nativeToScVal(milestoneIndex, { type: 'u32' }),
+    ],
+    true
+  )
+  return { txHash: txHash! }
+}
+
 export async function claimCampaign(
   campaignId: number
 ): Promise<{ txHash: string }> {
@@ -183,7 +302,34 @@ export async function claimCampaign(
   return { txHash: txHash! }
 }
 
-/** Current ledger sequence number */
+export async function addVerifiedCreator(
+  creatorAddress: string
+): Promise<{ txHash: string }> {
+  const { txHash } = await invoke(
+    'add_verified_creator',
+    [
+      nativeToScVal(ALICE_ADDRESS, { type: 'address' }), // admin
+      nativeToScVal(creatorAddress, { type: 'address' }),
+    ],
+    true
+  )
+  return { txHash: txHash! }
+}
+
+export async function removeVerifiedCreator(
+  creatorAddress: string
+): Promise<{ txHash: string }> {
+  const { txHash } = await invoke(
+    'remove_verified_creator',
+    [
+      nativeToScVal(ALICE_ADDRESS, { type: 'address' }), // admin
+      nativeToScVal(creatorAddress, { type: 'address' }),
+    ],
+    true
+  )
+  return { txHash: txHash! }
+}
+
 export async function getLedger(): Promise<number> {
   const info = await server.getLatestLedger()
   return info.sequence
@@ -191,7 +337,22 @@ export async function getLedger(): Promise<number> {
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
+function parseMilestone(raw: Record<string, unknown>): Milestone {
+  return {
+    index:          Number(raw.index ?? 0),
+    title:          String(raw.title ?? ''),
+    amount:         Number(raw.amount ?? 0),
+    approved:       Boolean(raw.approved ?? false),
+    claimed:        Boolean(raw.claimed ?? false),
+    proof_cid:      String(raw.proof_cid ?? ''),
+    proof_submitted: Boolean(raw.proof_submitted ?? false),
+  }
+}
+
 function parseCampaign(raw: Record<string, unknown>): Campaign {
+  const milestones = Array.isArray(raw.milestones)
+    ? (raw.milestones as Record<string, unknown>[]).map(parseMilestone)
+    : []
   return {
     id:       Number(raw.id       ?? 0),
     creator:  String(raw.creator  ?? ''),
@@ -200,6 +361,8 @@ function parseCampaign(raw: Record<string, unknown>): Campaign {
     raised:   Number(raw.raised   ?? 0),
     deadline: Number(raw.deadline ?? 0),
     claimed:  Boolean(raw.claimed ?? false),
+    milestones,
+    verified: Boolean(raw.verified ?? false),
   }
 }
 

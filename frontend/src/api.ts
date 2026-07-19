@@ -80,6 +80,49 @@ export async function apiFreezeAccount(walletAddress: string) {
   return post('/admin/freeze', { walletAddress })
 }
 
+// ── IPFS Proof backup ─────────────────────────────────────────────────────────
+export async function apiSubmitProof(
+  campaignId: number,
+  milestoneIndex: number,
+  cid: string,
+  fileName?: string,
+  uploader?: string
+) {
+  return post(`/campaigns/${campaignId}/milestones/${milestoneIndex}/proof`, {
+    cid, fileName, uploader
+  })
+}
+
+export async function apiGetProof(campaignId: number, milestoneIndex: number) {
+  return get(`/campaigns/${campaignId}/milestones/${milestoneIndex}/proof`, null)
+}
+
+// ── Verified Creators ─────────────────────────────────────────────────────────
+export async function apiGetVerifiedCreators(): Promise<{ verifiedCreators: string[] }> {
+  return get('/admin/verified-creators', { verifiedCreators: [] })
+}
+
+export async function apiVerifyCreator(address: string) {
+  return post('/admin/verified-creators', { address })
+}
+
+export async function apiRevokeCreator(address: string) {
+  return fetch(`https://backend-two-gamma-80.vercel.app/api/admin/verified-creators/${address}`, {
+    method: 'DELETE'
+  }).then(r => r.json()).catch(() => ({ success: false }))
+}
+
+// ── Refund records ────────────────────────────────────────────────────────────
+export async function apiRecordRefund(data: {
+  campaignId: number
+  donor: string
+  amount: number
+  txHash: string
+}) {
+  return post('/donations/refund', data)
+}
+
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface Donation {
   txHash: string

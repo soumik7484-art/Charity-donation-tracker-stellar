@@ -514,6 +514,135 @@ Response must be exactly the category name, nothing else.`;
   }
 });
 
+// 11. Milestone Proof Storage (IPFS CID backup — on-chain is primary)
+app.post('/api/campaigns/:id/milestones/:index/proof', (req, res) => {
+  const id     = Number(req.params.id);
+  const mIndex = Number(req.params.index);
+  const { cid, fileName, uploader } = req.body;
+
+  if (!cid) return res.status(400).json({ error: 'Missing CID' });
+
+  const updated = db.update('campaigns', c => c.id === id, c => {
+    if (c.milestones[mIndex]) {
+      c.milestones[mIndex].proof_cid       = cid;
+      c.milestones[mIndex].proof_submitted = true;
+      c.milestones[mIndex].proof_fileName  = fileName || '';
+      c.milestones[mIndex].proof_uploader  = uploader || '';
+      c.milestones[mIndex].proof_timestamp = new Date().toISOString();
+    }
+    return c;
+  });
+
+  if (!updated) return res.status(404).json({ error: 'Campaign or milestone not found' });
+
+  db.insert('notifications', {
+    id: Date.now().toString(),
+    type: 'proof',
+    text: `Proof uploaded for Milestone #${mIndex + 1} of "${updated.title}". CID: ${cid.slice(0, 12)}…`,
+    time: 'Just now',
+    read: false
+  });
+
+  res.json({ success: true, cid, milestone: updated.milestones[mIndex] });
+});
+
+app.get('/api/campaigns/:id/milestones/:index/proof', (req, res) => {
+  const id     = Number(req.params.id);
+  const mIndex = Number(req.params.index);
+
+  const camp = db.findOne('campaigns', c => c.id === id);
+  if (!camp) return res.status(404).json({ error: 'Campaign not found' });
+
+  const milestone = camp.milestones[mIndex];
+  if (!milestone) return res.status(404).json({ error: 'Milestone not found' });
+
+  res.json({
+    cid:          milestone.proof_cid       || null,
+    submitted:    milestone.proof_submitted || false,
+    fileName:     milestone.proof_fileName  || null,
+    uploader:     milestone.proof_uploader  || null,
+    timestamp:    milestone.proof_timestamp || null,
+  });
+});
+
+// 12. Verified Creators Registry (off-chain backup — on-chain is primary)
+app.get('/api/admin/verified-creators', (req, res) => {
+  const settings = db.get('settings') || { frozenAccounts: [], verifiedCreators: [] };
+  res.json({ verifiedCreators: settings.verifiedCreators || [] });
+});
+
+app.post('/api/admin/verified-creators', (req, res) => {
+  const { address } = req.body;
+  if (!address) return res.status(400).json({ error: 'Missing address' });
+
+  const settings = db.get('settings') || { frozenAccounts: [], verifiedCreators: [] };
+  if (!settings.verifiedCreators) settings.verifiedCreators = [];
+
+  if (!settings.verifiedCreators.includes(address)) {
+    settings.verifiedCreators.push(address);
+  }
+
+  db.set('settings', settings);
+
+  // Mark campaigns from this creator as verified
+  db.getAll('campaigns').forEach(c => {
+    if (c.creator === address) {
+      db.update('campaigns', x => x.id === c.id, x => {
+        x.verified = true;
+        return x;
+      });
+    }
+  });
+
+  res.json({ success: true, verifiedCreators: settings.verifiedCreators });
+});
+
+app.delete('/api/admin/verified-creators/:address', (req, res) => {
+  const { address } = req.params;
+  const settings = db.get('settings') || { frozenAccounts: [], verifiedCreators: [] };
+
+  settings.verifiedCreators = (settings.verifiedCreators || []).filter(a => a !== address);
+  db.set('settings', settings);
+
+  // Remove verified badge from that creator's campaigns
+  db.getAll('campaigns').forEach(c => {
+    if (c.creator === address) {
+      db.update('campaigns', x => x.id === c.id, x => {
+        x.verified = false;
+        return x;
+      });
+    }
+  });
+
+  res.json({ success: true, verifiedCreators: settings.verifiedCreators });
+});
+
+// 13. Donor Refund Tracking (off-chain record)
+app.post('/api/donations/refund', (req, res) => {
+  const { campaignId, donor, amount, txHash } = req.body;
+
+  const newRefund = {
+    id: `refund-${Date.now()}`,
+    campaignId: Number(campaignId),
+    donor,
+    amount: Number(amount),
+    txHash,
+    timestamp: new Date().toISOString()
+  };
+
+  db.insert('refunds', newRefund);
+
+  db.insert('notifications', {
+    id: Date.now().toString(),
+    type: 'refund',
+    text: `Refund of ${amount} XLM processed for campaign #${campaignId}`,
+    time: 'Just now',
+    read: false
+  });
+
+  res.json({ success: true, refund: newRefund });
+});
+
 app.listen(PORT, () => {
   console.log(`CharityChain API backend running on port ${PORT}`);
 });
