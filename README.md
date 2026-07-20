@@ -74,6 +74,18 @@ add_verified_creator(admin: Address, creator: Address)
 ```
 
 ---
+Dashboard
+<img width="1906" height="917" alt="image" src="https://github.com/user-attachments/assets/aa3f9028-056c-4eb9-9360-396b82a6705b" />
+
+
+
+Helping Chatbot
+
+
+
+<img width="450" height="702" alt="image" src="https://github.com/user-attachments/assets/4776e653-8b45-41df-8409-12ceb057e2f6" />
+
+
 
 ## 🚀 Getting Started
 
